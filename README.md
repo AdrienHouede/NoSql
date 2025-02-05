@@ -36,4 +36,7 @@ cd kibana
 
 sudo docker-compose up
 
-### 1. Assurez-vous que le script est exécutable
+curl -X POST "http://localhost:9200/_bulk" -H "Content-Type: application/json" --data-binary "@movies.json"
+
+url pour la console : http://localhost:5601/app/dev_tools#/console
+

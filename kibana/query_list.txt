@@ -1,0 +1,187 @@
+GET movies/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+GET movies/_search
+{
+  "query": {
+    "match": {
+      "fields.genres": "Drama"
+    }
+  }
+}
+
+#Boolean Query (Combiner plusieurs conditions avec must, should, must_not, filter)
+GET movies/_search
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": {
+          "fields.genres": "Action"
+        }
+      },
+      "must_not": {
+        "match": {
+          "fields.director": "Michael Bay"
+        }
+      }
+    }
+  }
+}
+
+#Exists Query (Vérifier si un champ est présent dans un document)
+GET movies/_search
+{
+  "query": {
+    "exists": {
+      "field": "fields.rating"
+    }
+  }
+}
+
+#Wildcard Query (Rechercher avec des caractères génériques ? et *)
+GET movies/_search
+{
+  "query": {
+    "wildcard": {
+      "fields.title": "Sp*d*r"
+    }
+  }
+}
+
+#Fuzzy Query (Rechercher avec tolérance aux fautes de frappe)
+GET movies/_search
+{
+  "query": {
+    "fuzzy": {
+      "fields.title": {
+        "value": "Bstman",
+        "fuzziness": "AUTO"
+      }
+    }
+  }
+}
+
+#Match Phrase Prefix Query (Rechercher une phrase avec auto-complétion)
+GET movies/_search
+{
+  "query": {
+    "match_phrase_prefix": {
+      "fields.title": "The Lord of"
+    }
+  }
+}
+
+#Common Terms Query (Équilibrer les termes communs et rares)
+GET movies/_search
+{
+  "query": {
+    "common": {
+      "fields.title": {
+        "query": "the dark knight",
+        "cutoff_frequency": 0.001
+      }
+    }
+  }
+}
+
+#Query String Query (Utiliser une syntaxe avancée de recherche)
+GET movies/_search
+{
+  "query": {
+    "query_string": {
+      "query": "Inception OR Interstellar",
+      "fields": ["fields.title"]
+    }
+  }
+}
+
+#Match Phrase Query (Rechercher une phrase exacte)
+GET movies/_search
+{
+  "query": {
+    "match_phrase": {
+      "fields.title": "The Matrix Reloaded"
+    }
+  }
+}
+
+#Match Boolean Prefix Query (Rechercher avec auto-complétion et booléen)
+GET movies/_search
+{
+  "query": {
+    "match_bool_prefix": {
+      "fields.title": "Star W"
+    }
+  }
+}
+
+#Highlighting (Mettre en évidence les résultats de recherche)
+GET movies/_search
+{
+  "query": {
+    "match": {
+      "fields.title": "Matrix"
+    }
+  },
+  "highlight": {
+    "fields": {
+      "fields.title": {}
+    }
+  }
+}
+
+#Aggregations (Effectuer des statistiques sur les données)
+GET movies/_search
+{
+  "size": 0,
+  "aggs": {
+    "genres_count": {
+      "terms": {
+        "field": "fields.genres.keyword"
+      }
+    }
+  }
+}
+
+#Sorting (Trier les résultats)
+GET movies/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "sort": [
+    {
+      "fields.rating": "desc"
+    }
+  ]
+}
+
+#Relevance Score (Ajuster la pertinence des résultats)
+GET movies/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "Inception",
+      "fields": ["fields.title^2", "fields.description"]
+    }
+  }
+}
+
+#Suggesters (Proposer des suggestions en cas d'erreur)
+GET movies/_search
+{
+  "suggest": {
+    "text": "Incepton",
+    "simple_phrase": {
+      "phrase": {
+        "field": "fields.title",
+        "size": 1
+      }
+    }
+  }
+}
