@@ -8,6 +8,10 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - path.repo=/usr/share/snapshots
+      - xpack.security.enabled=true
+      - xpack.security.audit.enabled=true
+      - xpack.monitoring.collection.enabled=true
+      - ELASTIC_PASSWORD=somethingsecret
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -30,6 +34,11 @@ services:
       - "5044:5044"
       - "5045:5045"
       - "9600:9600"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5 
     networks:
       - elk
     depends_on:
@@ -39,13 +48,20 @@ services:
     image: docker.elastic.co/kibana/kibana:7.11.1
     container_name: kibana
     environment:
-    - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
       - "5601:5601"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
     networks:
       - elk
     depends_on:
       - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.11.2
@@ -58,7 +74,6 @@ services:
     depends_on:
       - logstash
       - elasticsearch
-
 
   metricbeat:
     build: ./metricbeat
@@ -74,6 +89,18 @@ services:
     depends_on:
       - elasticsearch
       - kibana
+
+  curator:
+    image: bobrik/curator:5.8.1
+    container_name: curator
+    volumes:
+      - ./curator:/usr/share/curator
+    command:
+      - --config
+      - /usr/share/curator/config.yml
+      - /usr/share/curator/actions.yml
+    networks:
+      - elk
 
 volumes:
   es-data:
