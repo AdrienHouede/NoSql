@@ -40,3 +40,12 @@ curl -X POST "http://localhost:9200/_bulk" -H "Content-Type: application/json" -
 
 url pour la console : http://localhost:5601/app/dev_tools#/console
 
+## Python API Overview
+
+cd overview_python
+
+sudo docker-compose up
+
+Vérifier l'état : curl -X GET "localhost:9200/_cat/indices?v" 
+
+python3 main.py
